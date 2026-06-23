@@ -118,9 +118,22 @@ class NuevaEntradaActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (::videoPreview.isInitialized) videoPreview.stopPlayback()
+        detenerGrabacionSiActiva()
+    }
+
     override fun onStop() {
         super.onStop()
         detenerGrabacionSiActiva()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::videoPreview.isInitialized) videoPreview.stopPlayback()
+        recorder?.apply { stop(); release() }
+        recorder = null
     }
 
     // ── Audio ─────────────────────────────────────────────────────────────
@@ -141,7 +154,7 @@ class NuevaEntradaActivity : AppCompatActivity() {
     }
 
     private fun iniciarGrabacion() {
-        rutaAudio = "${externalCacheDir?.absolutePath}/audio_${System.currentTimeMillis()}.mp4"
+        rutaAudio = "${getExternalFilesDir(Environment.DIRECTORY_MUSIC)}/audio_${System.currentTimeMillis()}.mp4"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             recorder  = MediaRecorder(this).apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
