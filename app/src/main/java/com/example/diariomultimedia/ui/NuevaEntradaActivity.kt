@@ -35,6 +35,8 @@ class NuevaEntradaActivity : AppCompatActivity() {
     private var rutaAudio   = ""
     private var fotoUri: Uri? = null
     private var videoUri: Uri? = null
+    private var rutaFoto: String? = null
+    private var rutaVideo: String? = null
 
     // Vistas
     private lateinit var etTitulo:       EditText
@@ -81,6 +83,7 @@ class NuevaEntradaActivity : AppCompatActivity() {
         uri ?: return@registerForActivityResult
         val copia = copiarFotoAlmacenamientoPrivado(uri)
         if (copia != null) {
+            rutaFoto = copia.absolutePath
             fotoUri = Uri.fromFile(copia)
             imgPreviewFoto.visibility = View.VISIBLE
             Glide.with(this).load(fotoUri).centerCrop().into(imgPreviewFoto)
@@ -181,7 +184,12 @@ class NuevaEntradaActivity : AppCompatActivity() {
     // ── Foto ──────────────────────────────────────────────────────────────
 
     private fun onFotoClick() {
-        fotoUri = crearUri(Environment.DIRECTORY_PICTURES, "foto", "jpg")
+        val archivo = File(
+            getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+            "foto_${System.currentTimeMillis()}.jpg"
+        )
+        rutaFoto = archivo.absolutePath
+        fotoUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", archivo)
         fotoLauncher.launch(fotoUri!!)
     }
 
@@ -209,7 +217,12 @@ class NuevaEntradaActivity : AppCompatActivity() {
     // ── Video ─────────────────────────────────────────────────────────────
 
     private fun onVideoClick() {
-        videoUri = crearUri(Environment.DIRECTORY_MOVIES, "video", "mp4")
+        val archivo = File(
+            getExternalFilesDir(Environment.DIRECTORY_MOVIES),
+            "video_${System.currentTimeMillis()}.mp4"
+        )
+        rutaVideo = archivo.absolutePath
+        videoUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", archivo)
         videoLauncher.launch(videoUri!!)
     }
 
@@ -229,25 +242,12 @@ class NuevaEntradaActivity : AppCompatActivity() {
             Entrada(
                 titulo = titulo,
                 rutaAudio = rutaAudio.ifEmpty { null },
-                rutaFoto = fotoUri?.toString(),
-                rutaVideo = videoUri?.toString()
+                rutaFoto = rutaFoto,
+                rutaVideo = rutaVideo
             )
         )
         setResult(RESULT_OK)
         finish()
     }
 
-    // ── Utilidades ────────────────────────────────────────────────────────
-
-    private fun crearUri(directorio: String, prefijo: String, extension: String): Uri {
-        val archivo = File(
-            getExternalFilesDir(directorio),
-            "${prefijo}_${System.currentTimeMillis()}.$extension"
-        )
-        return FileProvider.getUriForFile(
-            this,
-            "${packageName}.fileprovider",
-            archivo
-        )
-    }
 }

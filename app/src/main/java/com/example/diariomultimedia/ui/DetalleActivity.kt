@@ -2,7 +2,6 @@ package com.example.diariomultimedia.ui
 
 import android.widget.MediaController
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -82,7 +81,7 @@ class DetalleActivity : AppCompatActivity() {
         if (entrada.rutaFoto != null) {
             sectionFoto.visibility = View.VISIBLE
             Glide.with(this)
-                .load(Uri.parse(entrada.rutaFoto))
+                .load(entrada.rutaFoto)
                 .centerCrop()
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(imgFoto)
@@ -134,7 +133,7 @@ class DetalleActivity : AppCompatActivity() {
             val mc = MediaController(this)
             mc.setAnchorView(videoView)
             videoView.setMediaController(mc)
-            videoView.setVideoURI(Uri.parse(entrada.rutaVideo))
+            videoView.setVideoPath(entrada.rutaVideo)
             videoView.setOnCompletionListener {
                 Toast.makeText(this, "Video terminado", Toast.LENGTH_SHORT).show()
             }
